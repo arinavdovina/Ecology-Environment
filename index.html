@@ -11,6 +11,8 @@
             --jeopardy-yellow: #ffcc00;
             --jeopardy-dark: #000033;
             --glass: rgba(255, 255, 255, 0.1);
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,10 +21,10 @@
             font-family: 'Roboto', sans-serif;
             background: radial-gradient(circle, var(--jeopardy-blue) 0%, var(--jeopardy-dark) 100%);
             color: white;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden; /* Убираем прокрутку всего тела */
         }
 
         /* --- START SCREEN --- */
@@ -32,77 +34,49 @@
             background: var(--jeopardy-dark);
             z-index: 1000;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
         .setup-card {
             background: var(--glass);
             backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
+            padding: 25px;
+            border-radius: 15px;
             border: 2px solid var(--jeopardy-yellow);
             text-align: center;
-            max-width: 500px;
-            width: 100%;
+            width: 90%;
+            max-width: 400px;
         }
 
         .setup-card h1 {
             color: var(--jeopardy-yellow);
             font-family: 'Roboto Condensed', sans-serif;
-            font-size: 3rem;
-            margin-bottom: 30px;
-            text-shadow: 4px 4px 0px black;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px black;
         }
 
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--jeopardy-yellow); }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; color: var(--jeopardy-yellow); font-size: 0.9rem; }
         .input-group input {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 5px;
             border: none;
-            font-size: 1.1rem;
-            background: white;
-            color: var(--jeopardy-dark);
+            font-size: 1rem;
         }
-
-        .btn-start {
-            background: var(--jeopardy-yellow);
-            color: var(--jeopardy-dark);
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--jeopardy-yellow); }
 
         /* --- GAME BOARD --- */
-        .game-header {
-            text-align: center;
-            padding: 20px;
-            background: rgba(0,0,0,0.3);
-        }
-
-        .game-header h2 {
-            font-family: 'Roboto Condensed', sans-serif;
-            color: var(--jeopardy-yellow);
-            letter-spacing: 2px;
-        }
+        .game-header { padding: 10px; text-align: center; }
+        .game-header h2 { font-family: 'Roboto Condensed', sans-serif; color: var(--jeopardy-yellow); font-size: 1.2rem; }
 
         .board {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            padding: 20px;
-            max-width: 1200px;
+            gap: 8px;
+            padding: 10px;
+            max-width: 1000px;
             margin: 0 auto;
             flex-grow: 1;
             width: 100%;
@@ -111,38 +85,37 @@
         .category-name {
             background: var(--jeopardy-dark);
             color: var(--jeopardy-yellow);
-            padding: 15px;
+            padding: 8px 5px;
             text-align: center;
             font-weight: bold;
-            border: 2px solid var(--jeopardy-yellow);
-            border-radius: 8px;
+            border: 1px solid var(--jeopardy-yellow);
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-transform: uppercase;
-            font-size: 0.9rem;
         }
 
         .cell {
             background: var(--jeopardy-blue);
             color: var(--jeopardy-yellow);
             border: 2px solid var(--jeopardy-yellow);
-            aspect-ratio: 4/3;
+            aspect-ratio: 16 / 9; /* Более узкие блоки */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: 0.2s;
+            border-radius: 5px;
         }
 
-        .cell:hover { background: #1a23ff; transform: scale(1.02); }
-        .cell.disabled { opacity: 0.3; cursor: default; filter: grayscale(1); }
+        .cell:hover { background: #1a23ff; }
+        .cell.disabled { opacity: 0.2; cursor: default; filter: grayscale(1); }
 
-        /* --- QUESTION MODAL --- */
+        /* --- MODAL & OPTIONS --- */
         #modal {
             position: fixed;
             inset: 0;
@@ -152,59 +125,63 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
+            padding: 20px;
             text-align: center;
         }
 
-        .question-text {
-            font-size: 2.5rem;
-            max-width: 900px;
-            margin-bottom: 40px;
-            line-height: 1.4;
+        .question-text { font-size: 1.8rem; margin-bottom: 25px; max-width: 800px; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
         }
 
-        .answer-text {
-            font-size: 2rem;
-            color: var(--jeopardy-yellow);
-            margin-bottom: 40px;
-            display: none;
-            padding: 20px;
-            border: 2px dashed var(--jeopardy-yellow);
-        }
-
-        .modal-controls { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
-
-        .btn-game {
-            padding: 12px 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
+        .btn-option {
+            background: white;
+            color: var(--jeopardy-blue);
             border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             transition: 0.2s;
         }
 
-        .btn-show { background: white; color: var(--jeopardy-blue); }
-        .btn-correct { background: #2ecc71; color: white; }
-        .btn-wrong { background: #e74c3c; color: white; }
+        .btn-option.correct { background: var(--correct) !important; color: white; }
+        .btn-option.wrong { background: var(--wrong) !important; color: white; }
 
-        /* --- FOOTER / SCORE --- */
-        .score-bar {
-            background: var(--jeopardy-dark);
-            padding: 20px;
-            display: flex;
-            justify-content: space-around;
-            border-top: 4px solid var(--jeopardy-yellow);
+        .feedback-area { margin-top: 25px; height: 60px; }
+
+        .btn-next {
+            background: var(--jeopardy-yellow);
+            color: var(--jeopardy-dark);
+            padding: 12px 40px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
         }
 
-        .team-score { text-align: center; }
-        .team-score .name { color: var(--jeopardy-yellow); font-size: 1.2rem; margin-bottom: 5px; }
-        .team-score .points { font-size: 2rem; font-family: 'Roboto Condensed', sans-serif; }
+        /* --- SCORE --- */
+        .score-bar {
+            background: var(--jeopardy-dark);
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 3px solid var(--jeopardy-yellow);
+        }
 
-        @media (max-width: 768px) {
-            .board { grid-template-columns: repeat(2, 1fr); }
-            .question-text { font-size: 1.5rem; }
-            .cell { font-size: 1.5rem; }
+        .team-score .name { color: var(--jeopardy-yellow); font-size: 0.9rem; }
+        .team-score .points { font-size: 1.5rem; font-family: 'Roboto Condensed', sans-serif; }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .question-text { font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -214,14 +191,14 @@
         <div class="setup-card">
             <h1>JEOPARDY!</h1>
             <div class="input-group">
-                <label>Team 1 Name:</label>
+                <label>Team 1:</label>
                 <input type="text" id="t1-input" value="Eagles">
             </div>
             <div class="input-group">
-                <label>Team 2 Name:</label>
+                <label>Team 2:</label>
                 <input type="text" id="t2-input" value="Lions">
             </div>
-            <button class="btn-start" onclick="startGame()">START MISSION</button>
+            <button class="btn-option" style="background:var(--jeopardy-yellow); width:100%" onclick="startGame()">START GAME</button>
         </div>
     </div>
 
@@ -229,8 +206,7 @@
         <h2>ECOLOGY & ENVIRONMENT</h2>
     </header>
 
-    <div class="board" id="game-board">
-        </div>
+    <div class="board" id="game-board"></div>
 
     <div class="score-bar">
         <div class="team-score">
@@ -244,97 +220,72 @@
     </div>
 
     <div id="modal">
-        <div id="turn-indicator" style="color:var(--jeopardy-yellow); margin-bottom: 20px; font-weight: bold;"></div>
-        <div class="question-text" id="q-text">Question content...</div>
-        <div class="answer-text" id="a-text">Answer content...</div>
+        <div id="turn-indicator" style="color:var(--jeopardy-yellow); margin-bottom: 10px; font-weight: bold;"></div>
+        <div class="question-text" id="q-text"></div>
         
-        <div class="modal-controls">
-            <button class="btn-game btn-show" id="btn-show" onclick="showAnswer()">SHOW ANSWER</button>
-            <div id="scoring-btns" style="display:none; gap: 20px;">
-                <button class="btn-game btn-correct" onclick="handleScore(true)">CORRECT</button>
-                <button class="btn-game btn-wrong" onclick="handleScore(false)">WRONG</button>
-            </div>
+        <div class="options-grid" id="options-container"></div>
+
+        <div class="feedback-area">
+            <button class="btn-next" id="btn-next" onclick="closeModal()">CONTINUE</button>
         </div>
     </div>
 
     <script>
-        // Database
         const categories = [
             {
                 name: "Pollution",
                 questions: [
-                    { v: 100, q: "What do we call the dirty air in big cities that looks like clouds?", a: "Smog" },
-                    { v: 200, q: "Name the type of pollution caused by plastic in the ocean.", a: "Water pollution" },
-                    { v: 300, q: "Which gas is the main cause of global warming?", a: "Carbon dioxide (CO2)" },
-                    { v: 400, q: "What is the name for rain that contains chemicals and harms trees?", a: "Acid rain" },
-                    { v: 500, q: "What is 'Noise Pollution'?", a: "Too much loud sound that harms health" },
-                    { v: 600, q: "What do we call the process of chemicals leaking into the ground?", a: "Soil pollution" }
+                    { v: 100, q: "Dirty air in cities that looks like clouds?", a: "Smog", o: ["Smog", "Fog", "Steam", "Smoke"] },
+                    { v: 200, q: "Main gas causing global warming?", a: "CO2", o: ["Oxygen", "CO2", "Nitrogen", "Helium"] },
+                    { v: 400, q: "Rain containing chemicals?", a: "Acid rain", o: ["Heavy rain", "Acid rain", "Toxic storm", "Base rain"] },
+                    { v: 600, q: "Too much loud sound is ___ pollution.", a: "Noise", o: ["Air", "Sound", "Noise", "Ear"] }
                 ]
             },
             {
                 name: "Wildlife",
                 questions: [
-                    { v: 100, q: "What do we call a place where an animal naturally lives?", a: "Habitat" },
-                    { v: 200, q: "Animals that might disappear forever are called ___ species.", a: "Endangered" },
-                    { v: 300, q: "What is the process of trees being cut down in a large area?", a: "Deforestation" },
-                    { v: 400, q: "Name a large mammal that is losing its habitat due to melting ice.", a: "Polar bear" },
-                    { v: 500, q: "What is 'Biodiversity'?", a: "The variety of different plants and animals" },
-                    { v: 600, q: "What is a 'Nature Reserve'?", a: "A protected area for wildlife" }
+                    { v: 100, q: "Place where an animal naturally lives?", a: "Habitat", o: ["House", "Habitat", "Zoo", "Cage"] },
+                    { v: 200, q: "Species that might disappear forever?", a: "Endangered", o: ["Endangered", "Dangerous", "Small", "Wild"] },
+                    { v: 400, q: "Large scale cutting down of trees?", a: "Deforestation", o: ["Gardening", "Farming", "Deforestation", "Logging"] },
+                    { v: 600, q: "The variety of life on Earth?", a: "Biodiversity", o: ["Biology", "Biodiversity", "Nature", "Eco-system"] }
                 ]
             },
             {
                 name: "Recycling",
                 questions: [
-                    { v: 100, q: "What is the color of the bin usually used for paper?", a: "Blue (often)" },
-                    { v: 200, q: "Name the '3 Rs' of ecology.", a: "Reduce, Reuse, Recycle" },
-                    { v: 300, q: "What material takes 450 years to disappear in the ocean?", a: "Plastic" },
-                    { v: 400, q: "What is 'Composting'?", a: "Turning food waste into fertilizer" },
-                    { v: 500, q: "What does it mean to 'Reduce'?", a: "To use less of something" },
-                    { v: 600, q: "What is 'Upcycling'?", a: "Turning old things into something better" }
+                    { v: 100, q: "The 3 Rs: Reduce, Reuse, ___?", a: "Recycle", o: ["Recycle", "Return", "Remake", "Repair"] },
+                    { v: 200, q: "Material that takes 450 years to vanish?", a: "Plastic", o: ["Paper", "Glass", "Plastic", "Metal"] },
+                    { v: 400, q: "Turning food waste into fertilizer?", a: "Composting", o: ["Cooking", "Composting", "Cleaning", "Burying"] },
+                    { v: 600, q: "Making something better from old items?", a: "Upcycling", o: ["Upcycling", "Fixing", "Downcycling", "Painting"] }
                 ]
             },
             {
                 name: "Energy",
                 questions: [
-                    { v: 100, q: "Energy from the sun is called ___ energy.", a: "Solar" },
-                    { v: 200, q: "Name a renewable energy source that uses wind.", a: "Wind turbines / Wind power" },
-                    { v: 300, q: "What are coal, oil, and gas called?", a: "Fossil fuels" },
-                    { v: 400, q: "What do we call energy created by moving water?", a: "Hydroelectric energy" },
-                    { v: 500, q: "Why are fossil fuels bad for the environment?", a: "They release CO2 and cause warming" },
-                    { v: 600, q: "What is 'Geothermal energy'?", a: "Heat from inside the Earth" }
+                    { v: 100, q: "Energy from the sun?", a: "Solar", o: ["Solar", "Wind", "Lunar", "Heat"] },
+                    { v: 200, q: "Coal, oil, and gas are ___ fuels.", a: "Fossil", o: ["Fossil", "Ancient", "Dirty", "Old"] },
+                    { v: 400, q: "Energy from moving water?", a: "Hydro", o: ["Wind", "Hydro", "Steam", "Wave"] },
+                    { v: 600, q: "Heat from inside the Earth?", a: "Geothermal", o: ["Geothermal", "Volcanic", "Solar", "Ground"] }
                 ]
             }
         ];
 
         let team1 = { name: "", score: 0 };
         let team2 = { name: "", score: 0 };
-        let currentTurn = 1; 
-        let currentQuestionValue = 0;
-
-        // Fisher-Yates Shuffle for questions within categories
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
+        let currentTurn = 1;
+        let currentVal = 0;
 
         function startGame() {
             team1.name = document.getElementById('t1-input').value || "Team 1";
             team2.name = document.getElementById('t2-input').value || "Team 2";
-            
             document.getElementById('t1-name').innerText = team1.name;
             document.getElementById('t2-name').innerText = team2.name;
-            
             document.getElementById('start-screen').style.display = 'none';
             buildBoard();
         }
 
         function buildBoard() {
             const board = document.getElementById('game-board');
-            board.innerHTML = '';
-
-            // Create headers
             categories.forEach(cat => {
                 const div = document.createElement('div');
                 div.className = 'category-name';
@@ -342,8 +293,7 @@
                 board.appendChild(div);
             });
 
-            // Create cells (6 rows)
-            for (let r = 0; r < 6; r++) {
+            for (let r = 0; r < 4; r++) {
                 for (let c = 0; c < 4; c++) {
                     const q = categories[c].questions[r];
                     const cell = document.createElement('div');
@@ -355,33 +305,47 @@
             }
         }
 
-        function openQuestion(q, element) {
-            if (element.classList.contains('disabled')) return;
+        function openQuestion(q, el) {
+            if (el.classList.contains('disabled')) return;
+            el.classList.add('disabled');
+            currentVal = q.v;
             
-            currentQuestionValue = q.v;
-            element.classList.add('disabled');
-            
+            document.getElementById('turn-indicator').innerText = (currentTurn === 1 ? team1.name : team2.name) + "'S TURN";
             document.getElementById('q-text').innerText = q.q;
-            document.getElementById('a-text').innerText = "Answer: " + q.a;
-            document.getElementById('a-text').style.display = 'none';
-            document.getElementById('btn-show').style.display = 'block';
-            document.getElementById('scoring-btns').style.display = 'none';
             
-            const activeName = currentTurn === 1 ? team1.name : team2.name;
-            document.getElementById('turn-indicator').innerText = activeName + "'s Turn";
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
             
+            q.o.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-option';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(btn, opt, q.a);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('btn-next').style.display = 'none';
             document.getElementById('modal').style.display = 'flex';
         }
 
-        function showAnswer() {
-            document.getElementById('a-text').style.display = 'block';
-            document.getElementById('btn-show').style.display = 'none';
-            document.getElementById('scoring-btns').style.display = 'flex';
+        function checkAnswer(clickedBtn, selected, correct) {
+            const allBtns = document.querySelectorAll('.btn-option');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selected === correct) {
+                clickedBtn.classList.add('correct');
+                updateScore(currentVal);
+            } else {
+                clickedBtn.classList.add('wrong');
+                allBtns.forEach(btn => {
+                    if (btn.innerText === correct) btn.classList.add('correct');
+                });
+                updateScore(-currentVal);
+            }
+            document.getElementById('btn-next').style.display = 'inline-block';
         }
 
-        function handleScore(isCorrect) {
-            const points = isCorrect ? currentQuestionValue : -currentQuestionValue;
-            
+        function updateScore(points) {
             if (currentTurn === 1) {
                 team1.score += points;
                 document.getElementById('t1-score').innerText = team1.score;
@@ -389,17 +353,14 @@
                 team2.score += points;
                 document.getElementById('t2-score').innerText = team2.score;
             }
-
-            // Switch turn
-            currentTurn = currentTurn === 1 ? 2 : 1;
-            document.getElementById('modal').style.display = 'none';
-            checkEndGame();
         }
 
-        function checkEndGame() {
-            const totalCells = document.querySelectorAll('.cell').length;
-            const disabledCells = document.querySelectorAll('.cell.disabled').length;
-            if (totalCells === disabledCells) {
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            currentTurn = currentTurn === 1 ? 2 : 1;
+            
+            const remaining = document.querySelectorAll('.cell:not(.disabled)');
+            if (remaining.length === 0) {
                 const winner = team1.score > team2.score ? team1.name : team2.name;
                 alert("GAME OVER! Winner: " + winner);
             }
