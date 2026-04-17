@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeopardy: Ecology & Environment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --jeopardy-blue: #060ce9;
+            --jeopardy-yellow: #ffcc00;
+            --jeopardy-dark: #000033;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: radial-gradient(circle, var(--jeopardy-blue) 0%, var(--jeopardy-dark) 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* --- START SCREEN --- */
+        #start-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--jeopardy-dark);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .setup-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid var(--jeopardy-yellow);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .setup-card h1 {
+            color: var(--jeopardy-yellow);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 4px 4px 0px black;
+        }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--jeopardy-yellow); }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1rem;
+            background: white;
+            color: var(--jeopardy-dark);
+        }
+
+        .btn-start {
+            background: var(--jeopardy-yellow);
+            color: var(--jeopardy-dark);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--jeopardy-yellow); }
+
+        /* --- GAME BOARD --- */
+        .game-header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .game-header h2 {
+            font-family: 'Roboto Condensed', sans-serif;
+            color: var(--jeopardy-yellow);
+            letter-spacing: 2px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .category-name {
+            background: var(--jeopardy-dark);
+            color: var(--jeopardy-yellow);
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid var(--jeopardy-yellow);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .cell {
+            background: var(--jeopardy-blue);
+            color: var(--jeopardy-yellow);
+            border: 2px solid var(--jeopardy-yellow);
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .cell:hover { background: #1a23ff; transform: scale(1.02); }
+        .cell.disabled { opacity: 0.3; cursor: default; filter: grayscale(1); }
+
+        /* --- QUESTION MODAL --- */
+        #modal {
+            position: fixed;
+            inset: 0;
+            background: var(--jeopardy-blue);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 2.5rem;
+            max-width: 900px;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .answer-text {
+            font-size: 2rem;
+            color: var(--jeopardy-yellow);
+            margin-bottom: 40px;
+            display: none;
+            padding: 20px;
+            border: 2px dashed var(--jeopardy-yellow);
+        }
+
+        .modal-controls { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+        .btn-game {
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-show { background: white; color: var(--jeopardy-blue); }
+        .btn-correct { background: #2ecc71; color: white; }
+        .btn-wrong { background: #e74c3c; color: white; }
+
+        /* --- FOOTER / SCORE --- */
+        .score-bar {
+            background: var(--jeopardy-dark);
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 4px solid var(--jeopardy-yellow);
+        }
+
+        .team-score { text-align: center; }
+        .team-score .name { color: var(--jeopardy-yellow); font-size: 1.2rem; margin-bottom: 5px; }
+        .team-score .points { font-size: 2rem; font-family: 'Roboto Condensed', sans-serif; }
+
+        @media (max-width: 768px) {
+            .board { grid-template-columns: repeat(2, 1fr); }
+            .question-text { font-size: 1.5rem; }
+            .cell { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <div class="setup-card">
+            <h1>JEOPARDY!</h1>
+            <div class="input-group">
+                <label>Team 1 Name:</label>
+                <input type="text" id="t1-input" value="Eagles">
+            </div>
+            <div class="input-group">
+                <label>Team 2 Name:</label>
+                <input type="text" id="t2-input" value="Lions">
+            </div>
+            <button class="btn-start" onclick="startGame()">START MISSION</button>
+        </div>
+    </div>
+
+    <header class="game-header">
+        <h2>ECOLOGY & ENVIRONMENT</h2>
+    </header>
+
+    <div class="board" id="game-board">
+        </div>
+
+    <div class="score-bar">
+        <div class="team-score">
+            <div class="name" id="t1-name">TEAM 1</div>
+            <div class="points" id="t1-score">0</div>
+        </div>
+        <div class="team-score">
+            <div class="name" id="t2-name">TEAM 2</div>
+            <div class="points" id="t2-score">0</div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div id="turn-indicator" style="color:var(--jeopardy-yellow); margin-bottom: 20px; font-weight: bold;"></div>
+        <div class="question-text" id="q-text">Question content...</div>
+        <div class="answer-text" id="a-text">Answer content...</div>
+        
+        <div class="modal-controls">
+            <button class="btn-game btn-show" id="btn-show" onclick="showAnswer()">SHOW ANSWER</button>
+            <div id="scoring-btns" style="display:none; gap: 20px;">
+                <button class="btn-game btn-correct" onclick="handleScore(true)">CORRECT</button>
+                <button class="btn-game btn-wrong" onclick="handleScore(false)">WRONG</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database
+        const categories = [
+            {
+                name: "Pollution",
+                questions: [
+                    { v: 100, q: "What do we call the dirty air in big cities that looks like clouds?", a: "Smog" },
+                    { v: 200, q: "Name the type of pollution caused by plastic in the ocean.", a: "Water pollution" },
+                    { v: 300, q: "Which gas is the main cause of global warming?", a: "Carbon dioxide (CO2)" },
+                    { v: 400, q: "What is the name for rain that contains chemicals and harms trees?", a: "Acid rain" },
+                    { v: 500, q: "What is 'Noise Pollution'?", a: "Too much loud sound that harms health" },
+                    { v: 600, q: "What do we call the process of chemicals leaking into the ground?", a: "Soil pollution" }
+                ]
+            },
+            {
+                name: "Wildlife",
+                questions: [
+                    { v: 100, q: "What do we call a place where an animal naturally lives?", a: "Habitat" },
+                    { v: 200, q: "Animals that might disappear forever are called ___ species.", a: "Endangered" },
+                    { v: 300, q: "What is the process of trees being cut down in a large area?", a: "Deforestation" },
+                    { v: 400, q: "Name a large mammal that is losing its habitat due to melting ice.", a: "Polar bear" },
+                    { v: 500, q: "What is 'Biodiversity'?", a: "The variety of different plants and animals" },
+                    { v: 600, q: "What is a 'Nature Reserve'?", a: "A protected area for wildlife" }
+                ]
+            },
+            {
+                name: "Recycling",
+                questions: [
+                    { v: 100, q: "What is the color of the bin usually used for paper?", a: "Blue (often)" },
+                    { v: 200, q: "Name the '3 Rs' of ecology.", a: "Reduce, Reuse, Recycle" },
+                    { v: 300, q: "What material takes 450 years to disappear in the ocean?", a: "Plastic" },
+                    { v: 400, q: "What is 'Composting'?", a: "Turning food waste into fertilizer" },
+                    { v: 500, q: "What does it mean to 'Reduce'?", a: "To use less of something" },
+                    { v: 600, q: "What is 'Upcycling'?", a: "Turning old things into something better" }
+                ]
+            },
+            {
+                name: "Energy",
+                questions: [
+                    { v: 100, q: "Energy from the sun is called ___ energy.", a: "Solar" },
+                    { v: 200, q: "Name a renewable energy source that uses wind.", a: "Wind turbines / Wind power" },
+                    { v: 300, q: "What are coal, oil, and gas called?", a: "Fossil fuels" },
+                    { v: 400, q: "What do we call energy created by moving water?", a: "Hydroelectric energy" },
+                    { v: 500, q: "Why are fossil fuels bad for the environment?", a: "They release CO2 and cause warming" },
+                    { v: 600, q: "What is 'Geothermal energy'?", a: "Heat from inside the Earth" }
+                ]
+            }
+        ];
+
+        let team1 = { name: "", score: 0 };
+        let team2 = { name: "", score: 0 };
+        let currentTurn = 1; 
+        let currentQuestionValue = 0;
+
+        // Fisher-Yates Shuffle for questions within categories
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startGame() {
+            team1.name = document.getElementById('t1-input').value || "Team 1";
+            team2.name = document.getElementById('t2-input').value || "Team 2";
+            
+            document.getElementById('t1-name').innerText = team1.name;
+            document.getElementById('t2-name').innerText = team2.name;
+            
+            document.getElementById('start-screen').style.display = 'none';
+            buildBoard();
+        }
+
+        function buildBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+
+            // Create headers
+            categories.forEach(cat => {
+                const div = document.createElement('div');
+                div.className = 'category-name';
+                div.innerText = cat.name;
+                board.appendChild(div);
+            });
+
+            // Create cells (6 rows)
+            for (let r = 0; r < 6; r++) {
+                for (let c = 0; c < 4; c++) {
+                    const q = categories[c].questions[r];
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.innerText = q.v;
+                    cell.onclick = () => openQuestion(q, cell);
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function openQuestion(q, element) {
+            if (element.classList.contains('disabled')) return;
+            
+            currentQuestionValue = q.v;
+            element.classList.add('disabled');
+            
+            document.getElementById('q-text').innerText = q.q;
+            document.getElementById('a-text').innerText = "Answer: " + q.a;
+            document.getElementById('a-text').style.display = 'none';
+            document.getElementById('btn-show').style.display = 'block';
+            document.getElementById('scoring-btns').style.display = 'none';
+            
+            const activeName = currentTurn === 1 ? team1.name : team2.name;
+            document.getElementById('turn-indicator').innerText = activeName + "'s Turn";
+            
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function showAnswer() {
+            document.getElementById('a-text').style.display = 'block';
+            document.getElementById('btn-show').style.display = 'none';
+            document.getElementById('scoring-btns').style.display = 'flex';
+        }
+
+        function handleScore(isCorrect) {
+            const points = isCorrect ? currentQuestionValue : -currentQuestionValue;
+            
+            if (currentTurn === 1) {
+                team1.score += points;
+                document.getElementById('t1-score').innerText = team1.score;
+            } else {
+                team2.score += points;
+                document.getElementById('t2-score').innerText = team2.score;
+            }
+
+            // Switch turn
+            currentTurn = currentTurn === 1 ? 2 : 1;
+            document.getElementById('modal').style.display = 'none';
+            checkEndGame();
+        }
+
+        function checkEndGame() {
+            const totalCells = document.querySelectorAll('.cell').length;
+            const disabledCells = document.querySelectorAll('.cell.disabled').length;
+            if (totalCells === disabledCells) {
+                const winner = team1.score > team2.score ? team1.name : team2.name;
+                alert("GAME OVER! Winner: " + winner);
+            }
+        }
+    </script>
+</body>
+</html>
